@@ -2,7 +2,7 @@
 
 A production-grade, AI-driven SaaS designed to help students get placement-ready. The application features automated resume analysis, interactive mock interviews, curated DSA roadmaps, adaptive study planners, public portfolios, recruiter search, community discussion boards, and gamification—all wired to a Supabase Postgres backend and Google Gemini.
 
-![Placement Readiness Dashboard](./docs/screenshots/dashboard.png)
+![Dashboard](<Screenshot 2026-08-01 201835.png>)
 
 ---
 
