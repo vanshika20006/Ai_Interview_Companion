@@ -1,0 +1,3 @@
+CREATE POLICY "Recruiters view profiles" ON public.profiles FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'recruiter') OR public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "Recruiters view resume scores" ON public.resume_analyses FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'recruiter') OR public.has_role(auth.uid(), 'admin'));
+CREATE POLICY "Recruiters view problem progress" ON public.user_problem_progress FOR SELECT TO authenticated USING (public.has_role(auth.uid(), 'recruiter') OR public.has_role(auth.uid(), 'admin'));
