@@ -145,11 +145,32 @@ export const toggleSaveJob = createServerFn({ method: "POST" })
     z.object({ id: z.string().uuid(), saved: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { error } = await context.supabase
+    const { data: job, error } = await context.supabase
       .from("saved_jobs")
       .update({ saved: data.saved })
       .eq("id", data.id)
-      .eq("user_id", context.userId);
+      .eq("user_id", context.userId)
+      .select("id, title, company, apply_url")
+      .single();
     if (error) throw new Error(error.message);
+
+    if (data.saved && job) {
+      await context.supabase.from("bookmarks").upsert({
+        user_id: context.userId,
+        item_type: "job",
+        item_id: job.id,
+        title: job.title,
+        subtitle: job.company,
+        url: job.apply_url,
+      }, { onConflict: "user_id,item_type,item_id" });
+    } else {
+      await context.supabase
+        .from("bookmarks")
+        .delete()
+        .eq("user_id", context.userId)
+        .eq("item_type", "job")
+        .eq("item_id", data.id);
+    }
+
     return { ok: true };
   });

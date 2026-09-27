@@ -293,11 +293,11 @@ function Editor({
         </CardContent>
       </Card>
 
-      <div className="grid gap-4 xl:grid-cols-[1fr_auto]">
+      <div className="grid gap-6 xl:grid-cols-[1fr_520px]">
         <Card>
-          <CardContent className="p-4">
-            <Tabs defaultValue="personal" className="w-full">
-              <TabsList className="flex flex-wrap">
+          <CardContent className="p-4 sm:p-6">
+            <Tabs defaultValue="personal" className="w-full space-y-4">
+              <TabsList className="w-full justify-start p-1 flex-wrap gap-1">
                 <TabsTrigger value="personal">Personal</TabsTrigger>
                 <TabsTrigger value="experience">Experience</TabsTrigger>
                 <TabsTrigger value="projects">Projects</TabsTrigger>
@@ -306,7 +306,7 @@ function Editor({
                 <TabsTrigger value="achievements">Achievements</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="personal" className="mt-4 space-y-3">
+              <TabsContent value="personal" className="mt-4 space-y-4">
                 <Grid2>
                   <Field
                     label="Full name"
@@ -340,8 +340,8 @@ function Editor({
                     }
                   />
                 </Grid2>
-                <div>
-                  <Label>Summary</Label>
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-foreground">Summary</Label>
                   <Textarea
                     rows={4}
                     value={data.personal.summary}
@@ -515,20 +515,22 @@ function Editor({
               </TabsContent>
 
               <TabsContent value="skills" className="mt-4 space-y-3">
-                <Label>Skills (comma-separated)</Label>
-                <Textarea
-                  rows={3}
-                  value={data.skills.join(", ")}
-                  onChange={(e) =>
-                    setData({
-                      ...data,
-                      skills: e.target.value
-                        .split(",")
-                        .map((s) => s.trim())
-                        .filter(Boolean),
-                    })
-                  }
-                />
+                <div className="space-y-1.5">
+                  <Label className="text-xs font-medium text-foreground">Skills (comma-separated)</Label>
+                  <Textarea
+                    rows={3}
+                    value={data.skills.join(", ")}
+                    onChange={(e) =>
+                      setData({
+                        ...data,
+                        skills: e.target.value
+                          .split(",")
+                          .map((s) => s.trim())
+                          .filter(Boolean),
+                      })
+                    }
+                  />
+                </div>
               </TabsContent>
 
               <TabsContent value="achievements" className="mt-4 space-y-3">
@@ -569,8 +571,8 @@ function Field({
   onChange: (v: string) => void;
 }) {
   return (
-    <div>
-      <Label>{label}</Label>
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium text-foreground">{label}</Label>
       <Input value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );

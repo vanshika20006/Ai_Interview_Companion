@@ -1,14 +1,16 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Copy, LogOut, UsersRound } from "lucide-react";
+import { useState } from "react";
+import { ArrowLeft, Copy, LogOut, UsersRound, MessageSquare, Send, Sparkles } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { getGroup, leaveGroup } from "@/lib/studyGroups.functions";
+import { getGroup, leaveGroup, listGroupMessages, sendGroupMessage } from "@/lib/studyGroups.functions";
 
 export const Route = createFileRoute("/_authenticated/groups/$groupId")({
   head: () => ({ meta: [{ title: "Study Group — Placement AI" }] }),
@@ -21,10 +23,29 @@ function GroupDetail() {
   const navigate = useNavigate();
   const fetchGroup = useServerFn(getGroup);
   const leaveFn = useServerFn(leaveGroup);
+  const fetchMessages = useServerFn(listGroupMessages);
+  const sendMsgFn = useServerFn(sendGroupMessage);
+
+  const [message, setMessage] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["group", groupId],
     queryFn: () => fetchGroup({ data: { id: groupId } }),
+  });
+
+  const { data: messages, isLoading: loadingMsgs } = useQuery({
+    queryKey: ["groupMessages", groupId],
+    queryFn: () => fetchMessages({ data: { group_id: groupId } }),
+  });
+
+  const postMsg = useMutation({
+    mutationFn: () => sendMsgFn({ data: { group_id: groupId, content: message } }),
+    onSuccess: () => {
+      setMessage("");
+      toast.success("Posted update to group");
+      qc.invalidateQueries({ queryKey: ["groupMessages", groupId] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const leave = useMutation({
@@ -101,38 +122,92 @@ function GroupDetail() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Members ({data.members.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ul className="divide-y">
-            {data.members.map((m) => {
-              const name = m.profile?.full_name ?? m.profile?.username ?? "Member";
-              const initials = name
-                .split(" ")
-                .map((s) => s[0])
-                .join("")
-                .slice(0, 2)
-                .toUpperCase();
-              return (
-                <li key={m.user_id} className="flex items-center gap-3 py-2.5">
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{name}</div>
-                    {m.profile?.username && (
-                      <div className="text-xs text-muted-foreground">@{m.profile.username}</div>
-                    )}
+      <div className="grid gap-6 md:grid-cols-[1fr_300px]">
+        <Card className="flex flex-col">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <MessageSquare className="h-4 w-4 text-primary" /> Group Discussions & Activity
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 flex-1 flex flex-col">
+            <div className="space-y-3">
+              <Textarea
+                placeholder="Share a study update, solution link, or ask the group..."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                rows={3}
+              />
+              <Button
+                size="sm"
+                onClick={() => postMsg.mutate()}
+                disabled={!message.trim() || postMsg.isPending}
+              >
+                <Send className="mr-1.5 h-3.5 w-3.5" /> Post to Group
+              </Button>
+            </div>
+
+            <div className="space-y-3 pt-3 border-t">
+              {loadingMsgs ? (
+                <Skeleton className="h-20 w-full" />
+              ) : !messages?.length ? (
+                <div className="py-8 text-center text-sm text-muted-foreground">
+                  <Sparkles className="mx-auto h-6 w-6 text-muted-foreground mb-1" />
+                  No group posts yet. Be the first to start a conversation!
+                </div>
+              ) : (
+                messages.map((m) => (
+                  <div key={m.id} className="rounded-lg border p-3 space-y-1 bg-card">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-semibold text-foreground">{m.author_name}</span>
+                      <span className="text-muted-foreground text-[10px]">
+                        {new Date(m.created_at).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-sm whitespace-pre-wrap">{m.body}</p>
                   </div>
-                  {m.role === "owner" && <Badge variant="outline">Owner</Badge>}
-                </li>
-              );
-            })}
-          </ul>
-        </CardContent>
-      </Card>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="h-fit">
+          <CardHeader>
+            <CardTitle className="text-base">Members ({data.members.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="divide-y">
+              {data.members.map((m) => {
+                const name = m.profile?.full_name ?? m.profile?.username ?? "Member";
+                const initials = name
+                  .split(" ")
+                  .map((s) => s[0])
+                  .join("")
+                  .slice(0, 2)
+                  .toUpperCase();
+                return (
+                  <li key={m.user_id} className="flex items-center gap-3 py-2.5">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{name}</div>
+                      {m.profile?.username && (
+                        <div className="text-xs text-muted-foreground">@{m.profile.username}</div>
+                      )}
+                    </div>
+                    {m.role === "owner" && <Badge variant="outline">Owner</Badge>}
+                  </li>
+                );
+              })}
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
+

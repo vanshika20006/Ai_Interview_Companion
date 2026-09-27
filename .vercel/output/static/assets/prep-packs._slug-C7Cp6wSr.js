@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-DsKLSDJq.js";var t=e(),n=()=>(0,t.jsx)(`p`,{children:`Pack not found.`});export{n as notFoundComponent};

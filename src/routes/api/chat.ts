@@ -102,14 +102,14 @@ export const Route = createFileRoute("/api/chat")({
 
           const system = SCOPE_SYSTEM[thread.scope ?? scope] ?? SCOPE_SYSTEM.general;
 
-          const sanitizedMessages = messages.map((m) => {
+          const sanitizedMessages = messages.map((m: any) => {
             if (typeof m.content === "string") {
               return { ...m, content: m.content.replace(/\\/g, "\\\\") };
             }
             if (Array.isArray(m.parts)) {
               return {
                 ...m,
-                parts: m.parts.map((p) => {
+                parts: m.parts.map((p: any) => {
                   if (p.type === "text") {
                     return { ...p, text: p.text.replace(/\\/g, "\\\\") };
                   }

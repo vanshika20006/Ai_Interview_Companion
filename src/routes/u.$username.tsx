@@ -170,12 +170,9 @@ function PublicProfile() {
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 sm:grid-cols-3 md:grid-cols-4">
-                {badges.map(
-                  (b: {
-                    achievement_code: string;
-                    achievements: { title: string; description: string; icon: string } | null;
-                  }) => {
-                    const a = b.achievements!;
+                {badges.map((b: any) => {
+                  const a = Array.isArray(b.achievements) ? b.achievements[0] : b.achievements;
+                  if (!a) return null;
                     const Icon =
                       (Icons[a.icon as keyof typeof Icons] as React.ComponentType<{
                         className?: string;

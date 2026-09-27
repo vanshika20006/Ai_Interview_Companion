@@ -65,6 +65,16 @@ export const joinGroupByCode = createServerFn({ method: "POST" })
       .select("id, name")
       .eq("id", gid as string)
       .maybeSingle();
+
+    // Create a notification for joining the group
+    await context.supabase.from("notifications").insert({
+      user_id: context.userId,
+      type: "group",
+      title: `Joined Study Group`,
+      body: `You joined ${group?.name || "a study group"}! Start prepping together.`,
+      link: `/groups/${gid}`,
+    });
+
     return group ?? { id: gid as string, name: "" };
   });
 
@@ -117,4 +127,83 @@ export const getGroup = createServerFn({ method: "GET" })
         profile: profiles.find((p) => p.id === m.user_id) ?? null,
       })),
     };
+  });
+
+export const listGroupMessages = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) => z.object({ group_id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    // Check membership
+    const { data: mem } = await context.supabase
+      .from("study_group_members")
+      .select("role")
+      .eq("group_id", data.group_id)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    if (!mem) throw new Error("You must be a member to view group discussions.");
+
+    const { data: posts, error } = await context.supabase
+      .from("community_posts")
+      .select("*")
+      .eq("room", "General")
+      .order("created_at", { ascending: false })
+      .limit(30);
+
+    if (error) throw new Error(error.message);
+
+    const authorIds = Array.from(new Set((posts ?? []).map((p) => p.author_id)));
+    let profiles: { id: string; full_name: string | null }[] = [];
+    if (authorIds.length > 0) {
+      const { data: profs } = await context.supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", authorIds);
+      profiles = profs ?? [];
+    }
+    const pmap = new Map(profiles.map((p) => [p.id, p.full_name]));
+
+    return (posts ?? []).map((p) => ({
+      id: p.id,
+      author_id: p.author_id,
+      author_name: pmap.get(p.author_id) ?? "Member",
+      title: p.title,
+      body: p.body,
+      created_at: p.created_at,
+    }));
+  });
+
+export const sendGroupMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((input: unknown) =>
+    z
+      .object({
+        group_id: z.string().uuid(),
+        content: z.string().trim().min(1).max(2000),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: mem } = await context.supabase
+      .from("study_group_members")
+      .select("role")
+      .eq("group_id", data.group_id)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+
+    if (!mem) throw new Error("You must be a member to post in this group.");
+
+    const { data: post, error } = await context.supabase
+      .from("community_posts")
+      .insert({
+        author_id: context.userId,
+        room: "General",
+        title: "Study Group Update",
+        body: data.content,
+      })
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return post;
   });

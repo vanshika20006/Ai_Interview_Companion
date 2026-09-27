@@ -164,10 +164,37 @@ export const toggleSavePost = createServerFn({ method: "POST" })
         .delete()
         .eq("post_id", data.post_id)
         .eq("user_id", context.userId);
+
+      await context.supabase
+        .from("bookmarks")
+        .delete()
+        .eq("user_id", context.userId)
+        .eq("item_type", "post")
+        .eq("item_id", data.post_id);
     } else {
       await context.supabase
         .from("saved_posts")
         .insert({ post_id: data.post_id, user_id: context.userId });
+
+      const { data: post } = await context.supabase
+        .from("community_posts")
+        .select("title, room")
+        .eq("id", data.post_id)
+        .maybeSingle();
+
+      if (post) {
+        await context.supabase.from("bookmarks").upsert(
+          {
+            user_id: context.userId,
+            item_type: "post",
+            item_id: data.post_id,
+            title: post.title,
+            subtitle: post.room ? `Room: ${post.room}` : "Community",
+            url: `/community/${data.post_id}`,
+          },
+          { onConflict: "user_id,item_type,item_id" },
+        );
+      }
     }
     return { ok: true };
   });
