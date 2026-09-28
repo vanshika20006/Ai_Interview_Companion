@@ -95,7 +95,7 @@ export const Route = createFileRoute("/api/chat")({
           }
 
           const key = process.env.GEMINI_API_KEY || process.env.LOVABLE_API_KEY;
-          if (!key) return new Response("Missing GEMINI_API_KEY", { status: 500 });
+          if (!key) return new Response("Missing GEMINI_API_KEY environment variable.", { status: 500 });
 
           const provider = createAiProvider(key);
           const model = provider("google/gemini-2.5-flash");

@@ -1,1 +1,0 @@
-import{r as e}from"./chunk-QTnfLwEv.js";import{i as t}from"./useRouter-B11fBNbF.js";var n=e(t(),1),r=globalThis?.document?n.useLayoutEffect:()=>{};export{r as t};

@@ -6,18 +6,24 @@ import type { Database } from "./types";
 
 export const requireSupabaseAuth = createMiddleware({ type: "function" }).server(
   async ({ next }) => {
-    const SUPABASE_URL = process.env.SUPABASE_URL;
-    const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+    const DEFAULT_URL = "https://pltxpwfmyoxgmgykkylv.supabase.co";
+    const DEFAULT_KEY = "sb_publishable_Lupg429azDL1bHgPSUomWA_YkTPy-gR";
 
-    if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-      const missing = [
-        ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
-        ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
-      ];
-      const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Please check your .env file.`;
-      console.error(`[Supabase] ${message}`);
-      throw new Error(message);
-    }
+    const SUPABASE_URL =
+      process.env.SUPABASE_URL ||
+      process.env.VITE_SUPABASE_URL ||
+      (typeof import.meta !== "undefined" && import.meta.env
+        ? import.meta.env.VITE_SUPABASE_URL || import.meta.env.SUPABASE_URL
+        : undefined) ||
+      DEFAULT_URL;
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      process.env.SUPABASE_PUBLISHABLE_KEY ||
+      process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+      (typeof import.meta !== "undefined" && import.meta.env
+        ? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.SUPABASE_PUBLISHABLE_KEY
+        : undefined) ||
+      DEFAULT_KEY;
 
     const request = getRequest();
 
