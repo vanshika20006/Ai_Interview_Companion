@@ -39,6 +39,7 @@ import { Route as AuthenticatedAnalyticsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAchievementsRouteImport } from './routes/_authenticated/achievements'
 import { Route as AuthenticatedPrepPacksIndexRouteImport } from './routes/_authenticated/prep-packs.index'
+import { Route as AuthenticatedInterviewIndexRouteImport } from './routes/_authenticated/interview.index'
 import { Route as AuthenticatedCodeReviewIndexRouteImport } from './routes/_authenticated/code-review.index'
 import { Route as AuthenticatedChatIndexRouteImport } from './routes/_authenticated/chat.index'
 import { Route as AuthenticatedPrepPacksSlugRouteImport } from './routes/_authenticated/prep-packs.$slug'
@@ -202,6 +203,12 @@ const AuthenticatedPrepPacksIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedPrepPacksRoute,
   } as any)
+const AuthenticatedInterviewIndexRoute =
+  AuthenticatedInterviewIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedInterviewRoute,
+  } as any)
 const AuthenticatedCodeReviewIndexRoute =
   AuthenticatedCodeReviewIndexRouteImport.update({
     id: '/',
@@ -287,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/prep-packs/$slug': typeof AuthenticatedPrepPacksSlugRoute
   '/chat/': typeof AuthenticatedChatIndexRoute
   '/code-review/': typeof AuthenticatedCodeReviewIndexRoute
+  '/interview/': typeof AuthenticatedInterviewIndexRoute
   '/prep-packs/': typeof AuthenticatedPrepPacksIndexRoute
 }
 export interface FileRoutesByTo {
@@ -302,7 +310,6 @@ export interface FileRoutesByTo {
   '/community': typeof AuthenticatedCommunityRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
-  '/interview': typeof AuthenticatedInterviewRouteWithChildren
   '/jobs': typeof AuthenticatedJobsRoute
   '/leaderboard': typeof AuthenticatedLeaderboardRoute
   '/leetcode': typeof AuthenticatedLeetcodeRoute
@@ -323,6 +330,7 @@ export interface FileRoutesByTo {
   '/prep-packs/$slug': typeof AuthenticatedPrepPacksSlugRoute
   '/chat': typeof AuthenticatedChatIndexRoute
   '/code-review': typeof AuthenticatedCodeReviewIndexRoute
+  '/interview': typeof AuthenticatedInterviewIndexRoute
   '/prep-packs': typeof AuthenticatedPrepPacksIndexRoute
 }
 export interface FileRoutesById {
@@ -364,6 +372,7 @@ export interface FileRoutesById {
   '/_authenticated/prep-packs/$slug': typeof AuthenticatedPrepPacksSlugRoute
   '/_authenticated/chat/': typeof AuthenticatedChatIndexRoute
   '/_authenticated/code-review/': typeof AuthenticatedCodeReviewIndexRoute
+  '/_authenticated/interview/': typeof AuthenticatedInterviewIndexRoute
   '/_authenticated/prep-packs/': typeof AuthenticatedPrepPacksIndexRoute
 }
 export interface FileRouteTypes {
@@ -405,6 +414,7 @@ export interface FileRouteTypes {
     | '/prep-packs/$slug'
     | '/chat/'
     | '/code-review/'
+    | '/interview/'
     | '/prep-packs/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -420,7 +430,6 @@ export interface FileRouteTypes {
     | '/community'
     | '/dashboard'
     | '/groups'
-    | '/interview'
     | '/jobs'
     | '/leaderboard'
     | '/leetcode'
@@ -441,6 +450,7 @@ export interface FileRouteTypes {
     | '/prep-packs/$slug'
     | '/chat'
     | '/code-review'
+    | '/interview'
     | '/prep-packs'
   id:
     | '__root__'
@@ -481,6 +491,7 @@ export interface FileRouteTypes {
     | '/_authenticated/prep-packs/$slug'
     | '/_authenticated/chat/'
     | '/_authenticated/code-review/'
+    | '/_authenticated/interview/'
     | '/_authenticated/prep-packs/'
   fileRoutesById: FileRoutesById
 }
@@ -707,6 +718,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPrepPacksIndexRouteImport
       parentRoute: typeof AuthenticatedPrepPacksRoute
     }
+    '/_authenticated/interview/': {
+      id: '/_authenticated/interview/'
+      path: '/'
+      fullPath: '/interview/'
+      preLoaderRoute: typeof AuthenticatedInterviewIndexRouteImport
+      parentRoute: typeof AuthenticatedInterviewRoute
+    }
     '/_authenticated/code-review/': {
       id: '/_authenticated/code-review/'
       path: '/'
@@ -822,11 +840,13 @@ const AuthenticatedGroupsRouteWithChildren =
 
 interface AuthenticatedInterviewRouteChildren {
   AuthenticatedInterviewIdRoute: typeof AuthenticatedInterviewIdRoute
+  AuthenticatedInterviewIndexRoute: typeof AuthenticatedInterviewIndexRoute
 }
 
 const AuthenticatedInterviewRouteChildren: AuthenticatedInterviewRouteChildren =
   {
     AuthenticatedInterviewIdRoute: AuthenticatedInterviewIdRoute,
+    AuthenticatedInterviewIndexRoute: AuthenticatedInterviewIndexRoute,
   }
 
 const AuthenticatedInterviewRouteWithChildren =

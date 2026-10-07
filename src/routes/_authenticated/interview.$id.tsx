@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { getInterview, submitAnswer, completeInterview } from "@/lib/interview.functions";
+import { useNavigate } from "@tanstack/react-router";
+import { getInterview, submitAnswer, completeInterview, deleteInterview } from "@/lib/interview.functions";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 
 export const Route = createFileRoute("/_authenticated/interview/$id")({
@@ -21,9 +22,11 @@ export const Route = createFileRoute("/_authenticated/interview/$id")({
 function InterviewSession() {
   const { id } = Route.useParams();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const fetchInterview = useServerFn(getInterview);
   const submit = useServerFn(submitAnswer);
   const complete = useServerFn(completeInterview);
+  const deleteInterviewFn = useServerFn(deleteInterview);
 
   const { data, isLoading } = useQuery({
     queryKey: ["interview", id],
@@ -81,6 +84,15 @@ function InterviewSession() {
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const deleteSession = useMutation({
+    mutationFn: () => deleteInterviewFn({ data: { id } }),
+    onSuccess: () => {
+      toast.success("Session removed");
+      qc.invalidateQueries({ queryKey: ["interviews"] });
+      navigate({ to: "/interview" });
+    },
+  });
+
   if (isLoading)
     return (
       <div className="space-y-3">
@@ -101,14 +113,27 @@ function InterviewSession() {
       <div className="flex items-center justify-between">
         <Button asChild variant="ghost" size="sm">
           <Link to="/interview">
-            <ArrowLeft className="mr-1.5 h-4 w-4" /> Back
+            <ArrowLeft className="mr-1.5 h-4 w-4" /> Back to Interviews
           </Link>
         </Button>
-        {isCompleted && (
-          <Badge className="bg-success/15 text-success border-success/30" variant="outline">
-            Completed · Overall {data.interview.overall_score}/100
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {isCompleted ? (
+            <Badge className="bg-success/15 text-success border-success/30" variant="outline">
+              Completed · Overall {data.interview.overall_score}/100
+            </Badge>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10"
+              onClick={() => {
+                if (confirm("Delete this session and return to interviews?")) deleteSession.mutate();
+              }}
+            >
+              Delete Session
+            </Button>
+          )}
+        </div>
       </div>
 
       <Card>
@@ -121,8 +146,13 @@ function InterviewSession() {
             {data.interview.difficulty} difficulty · {answered}/{total} answered
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-2">
           <Progress value={progressValue} className="h-2" />
+          {!isCompleted && total > 0 && (
+            <p className="text-xs text-muted-foreground pt-1">
+              💡 <strong>Instruction:</strong> Answer each question below using text or voice. Click <strong className="text-foreground">Submit</strong> after each answer to get AI scores.
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -131,10 +161,14 @@ function InterviewSession() {
           <CardHeader>
             <CardTitle className="text-warning text-lg">No questions in this session</CardTitle>
             <CardDescription>
-              This interview session was created without questions (likely due to a missing API Key
-              when starting). Please go back, delete this session, and start a new interview.
+              This interview session has no questions. Click below to delete this session and start a new interview.
             </CardDescription>
           </CardHeader>
+          <CardContent>
+            <Button onClick={() => deleteSession.mutate()} disabled={deleteSession.isPending}>
+              Delete & Start New Interview
+            </Button>
+          </CardContent>
         </Card>
       )}
 

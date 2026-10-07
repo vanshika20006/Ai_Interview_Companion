@@ -35,8 +35,47 @@ const feedbackSchema = z.object({
 
 function gateway() {
   const apiKey = process.env.GEMINI_API_KEY || process.env.LOVABLE_API_KEY;
-  if (!apiKey) throw new Error("AI provider not configured");
+  if (!apiKey) throw new Error("GEMINI_API_KEY is not configured.");
   return createAiProvider(apiKey)("google/gemini-2.5-flash");
+}
+
+function getFallbackQuestions(role: string, type: string, count: number, difficulty: string) {
+  const pool: Record<string, Array<{ question: string; expected_topics: string[] }>> = {
+    "Frontend Developer": [
+      { question: "Explain Event Delegation in JavaScript and how it improves DOM performance.", expected_topics: ["DOM", "Event Bubbling", "Performance"] },
+      { question: "How does the React virtual DOM diffing algorithm work and why is key prop important?", expected_topics: ["Virtual DOM", "React", "Reconciliation"] },
+      { question: "Explain CSS Flexbox vs Grid and layout responsiveness strategies.", expected_topics: ["CSS", "Flexbox", "Grid", "Responsive Design"] },
+      { question: "How do you optimize Core Web Vitals (LCP, FID/INP, CLS) in a modern web application?", expected_topics: ["Web Vitals", "Performance Optimization", "Caching"] },
+      { question: "Explain the difference between Client-Side Rendering (CSR), Server-Side Rendering (SSR), and Static Site Generation (SSG).", expected_topics: ["SSR", "CSR", "SSG", "Next.js/TanStack"] },
+    ],
+    "Backend Developer": [
+      { question: "Explain SQL vs NoSQL databases and how to choose the right database for a service.", expected_topics: ["SQL", "NoSQL", "Database Design"] },
+      { question: "How does JWT (JSON Web Token) authentication work and how do you handle token revocation?", expected_topics: ["JWT", "Authentication", "Security"] },
+      { question: "Explain Database Indexing, B-Trees, and how indexing improves query performance.", expected_topics: ["Indexing", "SQL", "Database Tuning"] },
+      { question: "What is Connection Pooling in backend servers and why is it essential?", expected_topics: ["Connection Pool", "Performance", "Concurrency"] },
+      { question: "How do you design RESTful APIs vs GraphQL APIs for scalable microservices?", expected_topics: ["REST", "GraphQL", "API Architecture"] },
+    ],
+    "Full Stack Developer": [
+      { question: "Walk through the full lifecycle of a web request from browser URL bar to database and back.", expected_topics: ["HTTP/HTTPS", "DNS", "Web Server", "Database"] },
+      { question: "How do you handle authentication, session state, and security (CORS, XSS, CSRF) in a full-stack app?", expected_topics: ["Security", "CORS", "CSRF", "Auth"] },
+      { question: "How do you design database schemas and manage async background tasks/queues?", expected_topics: ["Schema Design", "Message Queues", "Background Processing"] },
+      { question: "Explain state management strategies in modern frontend applications paired with backend APIs.", expected_topics: ["State Management", "API Cache", "TanStack Query/Redux"] },
+      { question: "How do you deploy and monitor a full-stack production application for high availability?", expected_topics: ["CI/CD", "Monitoring", "Vercel/Docker", "Cloud"] },
+    ],
+    "Behavioral": [
+      { question: "Tell me about a challenging technical bug or problem you solved and your step-by-step approach.", expected_topics: ["Problem Solving", "Debugging", "Communication"] },
+      { question: "Describe a situation where you had a conflict or disagreement with a team member or requirement. How did you resolve it?", expected_topics: ["Conflict Resolution", "Teamwork", "Empathy"] },
+      { question: "Tell me about a project you worked on that failed or faced major setbacks. What did you learn?", expected_topics: ["Resilience", "Learning", "Project Management"] },
+      { question: "How do you prioritize your work when facing tight deadlines and multiple competing requirements?", expected_topics: ["Time Management", "Prioritization"] },
+      { question: "Describe a time when you had to learn a new technology or framework quickly for a project.", expected_topics: ["Adaptability", "Learning Curve"] },
+    ],
+  };
+
+  const selected = pool[role] || pool[type] || pool["Full Stack Developer"];
+  return selected.slice(0, count).map((q) => ({
+    ...q,
+    difficulty,
+  }));
 }
 
 function mapAiError(err: unknown): Error {
@@ -71,7 +110,7 @@ export const startInterview = createServerFn({ method: "POST" })
       : "";
     const sanitizedProfileCtx = profileCtx.replace(/\\/g, "\\\\");
 
-    let questions: Array<{ question: string; expected_topics: string[]; difficulty: string }>;
+    let questions: Array<{ question: string; expected_topics: string[]; difficulty: string }> = [];
     try {
       const { text } = await generateText({
         model: gateway(),
@@ -104,9 +143,12 @@ Generate exactly ${data.total_questions} realistic, diverse interview questions.
           };
         })
         .filter((q) => q.question.length > 0);
-      if (questions.length === 0) throw new Error("No questions generated");
     } catch (err) {
-      throw mapAiError(err);
+      console.warn("[startInterview] AI generation warning, using fallback questions:", err);
+    }
+
+    if (questions.length === 0) {
+      questions = getFallbackQuestions(data.role, data.interview_type, data.total_questions, data.difficulty);
     }
 
     const { data: interview, error } = await context.supabase
