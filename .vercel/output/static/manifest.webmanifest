@@ -1,0 +1,16 @@
+{
+  "name": "AI Placement Companion",
+  "short_name": "PlacementAI",
+  "description": "AI-powered placement prep: resume analysis, mock interviews, LeetCode roadmap, analytics, and recruiter portfolio.",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b1020",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["education", "productivity"]
+}
