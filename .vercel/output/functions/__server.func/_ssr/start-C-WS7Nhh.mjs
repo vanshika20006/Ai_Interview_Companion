@@ -1,0 +1,28 @@
+import { n as createMiddleware, r as createStart, t as createCsrfMiddleware } from "./createStart-DwZhSttb.mjs";
+import { t as supabase } from "./client-CHhZY1kc.mjs";
+import { t as renderErrorPage } from "./ssr.mjs";
+//#region node_modules/.nitro/vite/services/ssr/assets/start-C-WS7Nhh.js
+var attachSupabaseAuth = createMiddleware({ type: "function" }).client(async ({ next }) => {
+	const { data } = await supabase.auth.getSession();
+	const token = data.session?.access_token;
+	return next({ headers: token ? { Authorization: `Bearer ${token}` } : {} });
+});
+var csrfMiddleware = createCsrfMiddleware({ filter: (ctx) => ctx.handlerType === "serverFn" });
+var errorMiddleware = createMiddleware().server(async ({ next }) => {
+	try {
+		return await next();
+	} catch (error) {
+		console.error("[start.ts errorMiddleware caught]", error);
+		if (error != null && typeof error === "object" && "statusCode" in error) throw error;
+		return new Response(renderErrorPage(), {
+			status: 500,
+			headers: { "content-type": "text/html; charset=utf-8" }
+		});
+	}
+});
+var startInstance = createStart(() => ({
+	functionMiddleware: [attachSupabaseAuth],
+	requestMiddleware: [csrfMiddleware, errorMiddleware]
+}));
+//#endregion
+export { startInstance };
