@@ -1,8 +1,8 @@
 import { o as __toESM } from "../../_runtime.mjs";
 import { s as require_react } from "../@ai-sdk/react+[...].mjs";
 import { b as require_jsx_runtime, c as useId, d as dispatchDiscreteCustomEvent, f as useControllableState, g as createSlot, l as createCollection, m as createContextScope, o as Presence, p as useLayoutEffect2, s as useDirection, u as Primitive, v as composeRefs, y as useComposedRefs } from "./react-accordion+[...].mjs";
-import { a as offset, c as useFloating, i as limitShift, n as flip, o as shift, r as hide, s as size, t as arrow } from "../@floating-ui/react-dom+[...].mjs";
 import { t as composeEventHandlers } from "../radix-ui__primitive.mjs";
+import { a as offset, c as useFloating, i as limitShift, n as flip, o as shift, r as hide, s as size, t as arrow } from "../@floating-ui/react-dom+[...].mjs";
 import { i as useCallbackRef } from "./react-avatar+[...].mjs";
 import { d as Portal$1, f as FocusScope, l as ReactRemoveScroll, m as DismissableLayer, p as useFocusGuards, u as hideOthers } from "./react-dialog+[...].mjs";
 import { n as autoUpdate } from "../@floating-ui/dom+[...].mjs";

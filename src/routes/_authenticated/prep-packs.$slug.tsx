@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/prep-packs/$slug")({
   },
   component: PrepDetail,
   notFoundComponent: () => <p>Pack not found.</p>,
-  errorComponent: ({ error }) => <p>{error.message}</p>,
+  errorComponent: ({ error }) => <p>{error instanceof Error ? error.message : String(error)}</p>,
 });
 
 function PrepDetail() {

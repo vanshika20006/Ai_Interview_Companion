@@ -1,4 +1,4 @@
-import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { b as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { b as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { t as Button } from "./button-Bq5vK6RO.mjs";
 //#region node_modules/.nitro/vite/services/ssr/assets/u._username-BDIrGlQQ.js

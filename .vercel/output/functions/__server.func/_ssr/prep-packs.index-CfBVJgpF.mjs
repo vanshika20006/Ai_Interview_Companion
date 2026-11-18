@@ -1,4 +1,4 @@
-import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { b as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { b as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { a as CardTitle, i as CardHeader, n as CardContent, r as CardDescription, t as Card } from "./card-CtX3ithx.mjs";
 import { At as BookOpen, I as MessageSquare, Pt as ArrowRight, Tt as Building2, q as ListChecks } from "../_libs/lucide-react.mjs";

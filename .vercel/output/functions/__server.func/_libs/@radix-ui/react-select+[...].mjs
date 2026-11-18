@@ -1,14 +1,13 @@
 import { o as __toESM } from "../../_runtime.mjs";
 import { s as require_react } from "../@ai-sdk/react+[...].mjs";
 import { b as require_jsx_runtime, c as useId, f as useControllableState, g as createSlot, l as createCollection, m as createContextScope, o as Presence, p as useLayoutEffect2, s as useDirection, u as Primitive, y as useComposedRefs } from "./react-accordion+[...].mjs";
-import { l as require_react_dom } from "../@floating-ui/react-dom+[...].mjs";
 import { t as composeEventHandlers } from "../radix-ui__primitive.mjs";
 import { _ as createPopperScope, g as Root2, h as Content, m as Arrow, p as Anchor } from "./react-dropdown-menu+[...].mjs";
+import { l as require_react_dom } from "../@floating-ui/react-dom+[...].mjs";
 import { i as useCallbackRef } from "./react-avatar+[...].mjs";
 import { t as clamp } from "../radix-ui__number.mjs";
 import { d as Portal, f as FocusScope, l as ReactRemoveScroll, m as DismissableLayer, p as useFocusGuards, u as hideOthers } from "./react-dialog+[...].mjs";
 //#region node_modules/@radix-ui/react-use-previous/dist/index.mjs
-var import_react_dom = /* @__PURE__ */ __toESM(require_react_dom(), 1);
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
 function usePrevious(value) {
 	const ref = import_react.useRef({
@@ -25,6 +24,7 @@ function usePrevious(value) {
 }
 //#endregion
 //#region node_modules/@radix-ui/react-visually-hidden/dist/index.mjs
+var import_react_dom = /* @__PURE__ */ __toESM(require_react_dom(), 1);
 var import_jsx_runtime = require_jsx_runtime();
 var VISUALLY_HIDDEN_STYLES = Object.freeze({
 	position: "absolute",

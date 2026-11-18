@@ -1,6 +1,6 @@
 import { o as __toESM } from "../_runtime.mjs";
 import { s as require_react } from "../_libs/@ai-sdk/react+[...].mjs";
-import { g as Link } from "../_libs/@tanstack/react-router+[...].mjs";
+import { b as Link } from "../_libs/@tanstack/react-router+[...].mjs";
 import { b as require_jsx_runtime } from "../_libs/@radix-ui/react-accordion+[...].mjs";
 import { a as CardTitle, i as CardHeader, n as CardContent, r as CardDescription, t as Card } from "./card-CtX3ithx.mjs";
 import { Ft as ArrowLeft, K as LoaderCircle, V as Mail } from "../_libs/lucide-react.mjs";

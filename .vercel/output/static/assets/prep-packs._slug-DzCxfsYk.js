@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-DsKLSDJq.js";var t=e(),n=({error:e})=>(0,t.jsx)(`p`,{children:e instanceof Error?e.message:String(e)});export{n as errorComponent};

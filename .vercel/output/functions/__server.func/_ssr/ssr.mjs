@@ -55,7 +55,7 @@ function renderErrorPage() {
 if (typeof globalThis.WebSocket === "undefined") globalThis.WebSocket = wrapper_default;
 var serverEntryPromise;
 async function getServerEntry() {
-	if (!serverEntryPromise) serverEntryPromise = import("./server-Dw5vLu3E.mjs").then((m) => m.default ?? m);
+	if (!serverEntryPromise) serverEntryPromise = import("./server-C-rfwJ54.mjs").then((m) => m.default ?? m);
 	return serverEntryPromise;
 }
 async function normalizeCatastrophicSsrResponse(response) {
